@@ -24,12 +24,16 @@ print("%-15s %s" %("Value","Frequency"))
 for entity in histData.items():
     print("%-15s %s" %(entity))
 
+print("? stands for unset/missing values")
+
 #draw the histogram using matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
 
 histDict = dict(histData)
-plt.bar(range(len(histDict)), histDict.values(), align='center')
+colors = [cm.gist_rainbow(x) for x in range(0,256,256//len(histDict))]
+plt.bar(range(len(histDict)), histDict.values(), align='center', color=colors)
 plt.xticks(range(len(histDict)), histDict.keys())
 
 
