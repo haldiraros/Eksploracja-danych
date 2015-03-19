@@ -3,7 +3,7 @@
 from __future__ import division
 from __future__ import print_function
 import Orange
-
+from collections import Counter
 
 data = Orange.data.Table("bridges")
 
@@ -13,14 +13,37 @@ for i in [1,25,82]:
     if i < len(data):
         print("%03d ::" %i, data[i])
 
-#histogram
-print("\===Histogram generation")
-print(data.domain.features)
+#class variable and histogram
+print("\n===Class variable generation (fake)===")
+classVar = data.domain.features[-1].name
+print("Class variable name: ", classVar)
+print("Avaliable values: ", data.domain[classVar].values)
+histData = Counter(d[-1].value for d in data)
+
+print("%-15s %s" %("Value","Frequency"))
+for entity in histData.items():
+    print("%-15s %s" %(entity))
+
+#draw the histogram using matplotlib
+import numpy as np
+import matplotlib.pyplot as plt
+
+histDict = dict(histData)
+plt.bar(range(len(histDict)), histDict.values(), align='center')
+plt.xticks(range(len(histDict)), histDict.keys())
+
+
+plt.xlabel('Value')
+plt.ylabel('Frequency')
+plt.title('Histogram of Class Variable')
+plt.grid(True)
+plt.show()
+
 #attribute list and types
 
 discAttr=[attr.name for attr in data.domain.features if attr.var_type==Orange.feature.Type.Discrete]
 contAttr=[attr.name for attr in data.domain.features if attr.var_type==Orange.feature.Type.Continuous]
-attrCount= len(data.domain.features)-1
+attrCount= len(data.domain.features)
 
 print("\n===Attributes===")
 
@@ -33,7 +56,7 @@ print ("%-15s %-10s %s" % ("Attribute", "Mean/Mode", "Value"))
 
 print("\n===Attribute Mean and Modal values===")
 contDistr = Orange.statistics.basic.Domain(data)
-for x in data.domain.features[:-1]:
+for x in data.domain.features:
     if x.var_type==Orange.feature.Type.Continuous:
         print("%-15s %-10s %f" % (x.name, "Mean", contDistr[x.name].avg))
     else:
@@ -47,7 +70,7 @@ for x in data.domain.features:
 print("\n===Random Sample===")
 import random
 indices2 = Orange.data.sample.SubsetIndices2(p0=0.1)
-indices2.random_generator = Orange.misc.Random(random.randint(0, 50000))  
+indices2.random_generator = Orange.misc.Random(random.randint(0, 50000))  #set random generator - otherwise get always the same samples
 ind = indices2(data)
 sample = data.select(ind, 0)
 print("Sample of 10% of the instances in data set")
